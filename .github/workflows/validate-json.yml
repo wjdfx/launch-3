@@ -32,7 +32,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const jsonPath = path.join(process.env.GITHUB_WORKSPACE, 'validators/list.json');
+            const jsonPath = path.join(process.env.GITHUB_WORKSPACE, '*.json');
             const jsonString = fs.readFileSync(jsonPath);
             const jsonData = JSON.parse(jsonString);
             for (const key in jsonData) {
