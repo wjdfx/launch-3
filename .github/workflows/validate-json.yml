@@ -21,30 +21,19 @@ jobs:
               exit 1
             fi
           done
+      - name: Validate JSON value space
+        run: |
+          if [ ! -f "validators/list.json" ]; then
+            echo "File not found!"
+            exit 1
+          fi
 
-  validate-json2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
-      - name: Validate JSON file
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const jsonPath = path.join(process.env.GITHUB_WORKSPACE, '/validator/json.json');
-            const jsonString = fs.readFileSync(jsonPath);
-            const jsonData = JSON.parse(jsonString);
-            for (const key in jsonData) {
-              if (jsonData.hasOwnProperty(key)) {
-                const value = jsonData[key];
-                if (typeof value === 'string' && value.trim() !== value) {
-                  throw new Error(`Value "${value}" of key "${key}" in file "${jsonPath}" contains leading or trailing spaces.`);
-                }
-              }
-            }
+          if ! jq empty validators/list.json > /dev/null 2>&1; then
+            echo "Invalid JSON file!"
+            exit 1
+          fi
+
+          if grep -qE '\"[[:space:]]+|\"[[:space:]]+$' validators/list.json; then
+            echo "JSON file contains values with leading or trailing spaces!"
+            exit 1
+          fi
