@@ -21,3 +21,25 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Validate JSON file
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const jsonPath = path.join(process.env.GITHUB_WORKSPACE, 'validators/list.json');
+            const jsonString = fs.readFileSync(jsonPath);
+            const jsonData = JSON.parse(jsonString);
+            for (const key in jsonData) {
+              if (jsonData.hasOwnProperty(key)) {
+                const value = jsonData[key];
+                if (value.trim() !== value) {
+                  throw new Error(`Value "${value}" of key "${key}" contains leading or trailing spaces.`);
+                }
+              }
+            }
