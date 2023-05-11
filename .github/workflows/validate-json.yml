@@ -38,8 +38,8 @@ jobs:
             for (const key in jsonData) {
               if (jsonData.hasOwnProperty(key)) {
                 const value = jsonData[key];
-                if (value.trim() !== value) {
-                  throw new Error(`Value "${value}" of key "${key}" contains leading or trailing spaces.`);
+                if (typeof value === 'string' && value.trim() !== value) {
+                  throw new Error(`Value "${value}" of key "${key}" in file "${jsonPath}" contains leading or trailing spaces.`);
                 }
               }
             }
